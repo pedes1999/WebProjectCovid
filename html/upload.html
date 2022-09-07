@@ -1,0 +1,39 @@
+
+  
+<div class="container">
+  <div class="row">
+    
+	<div class='col-md-4'></div>
+	<div class='col-md-4'>
+		<form action="" method=post id=frm6 enctype='multipart/form-data'>
+			<div class="form-group">
+			<label >Αρχείο Δεδομένων:</label>
+			<input type="file" class="form-control" id="fn" name="fn">
+		  </div>
+				  
+		  <button type="submit" class="btn btn-default">Αποθήκευση</button>
+		</form>
+		<button id=deldata  class="btn btn-default">Διαγραφή όλων των στοιχείων</button>
+		<div id=error></div>
+	</div>
+	<div class='col-md-4'></div>	
+		
+    </div>
+	
+</div>
+
+<script>
+
+$("#deldata").click(function(){
+
+	$.get("/deldata",function(res){
+		
+		$("#error").html("<b>Τα δεδομένα διαγράφηκαν</b>"); 
+	});
+	
+});
+
+</script>
+
+</body>
+</html>

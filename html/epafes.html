@@ -1,0 +1,18 @@
+
+  
+<div class="container">
+	<h1> Επαφές με κρούσματα </h1>
+	 <div id=episk>
+		</div>
+</div>
+<script>
+
+	$.getJSON("/episkepseis2",function(res){
+		res.forEach(p => $("#episk").append("<p><b>PID:"+p.id+"</b><br>Tίτλος:"+p.name+" Ημερομηνία:"+p.date1+"</p>")); 
+	});
+	
+
+</script>
+
+</body>
+</html>

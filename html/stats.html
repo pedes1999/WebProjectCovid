@@ -1,0 +1,276 @@
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<div class="container">
+	<h1> Στατιστικά </h1>
+	 <div id=stat1></div>
+	 <div id=stat2></div>
+	 <div id=stat3></div>
+	 <div id=stat4></div>
+	 <div id=stat5></div>
+	 <div id=stat6>
+	 <b>Διάγραμμα Πλήθος Επισκέψεων ανά εβδομάδα/μέρα</b>
+	 Εβδομάδα:<input type="week" id=week1 value="" ><br>
+	 Προβολή πλήθος επισκέψεων που δηλώνουν οι χρήστες για κάθε ημέρα:<input type="checkbox" id=e1><br>
+	 Προβολή πλήθος επισκέψεων από διαγνωσμένα κρούσματα για κάθε ημέρα:<input type="checkbox" id=e2><br>
+	 
+	 <div id=graph1 style='width:100%; height:200px'></div>
+	 </div>
+	 <div id=stat7>
+	 <b>Διάγραμμα Πλήθος Επισκέψεων ανά μέρα/ώρα</b>
+	 Εβδομάδα:<input type="date" id=ddate1 value="" ><br>
+	 Προβολή πλήθος επισκέψεων που δηλώνουν οι χρήστες για κάθε ημέρα:<input type="checkbox" id=ee1><br>
+	 Προβολή πλήθος επισκέψεων από διαγνωσμένα κρούσματα για κάθε ημέρα:<input type="checkbox" id=ee2><br>	 
+	 <div id=graph2 style='width:100%; height:200px'></div>
+	 </div>
+</div>
+<script>
+	var D=[];
+	var DD=[];
+	
+	$("#week1").change(function(){
+		var W=$("#week1").val().split("-W"); 
+		
+		y=W[0];
+		w=W[1];
+		D=[];
+		D.push(["Ημερ","Επισκέψεις","Επισκ.Κρουσματα"]);
+		
+		$.getJSON("/diag1a?y="+y+"&w="+w,function(res){
+		
+			for(var i=0;i<res.length;i++)
+			{
+				
+				let x=res[i];
+				$.getJSON("/diag1b?d="+x.dd,(res2)=>{
+				
+					D.push([x.dd,x.c,res2[0].c]);
+					drawChart1();
+				});
+				
+			}
+			if(res.length!=0) drawChart1();
+			
+			
+		
+		});
+	
+		
+	
+	
+	});
+	
+	$("#e1").change(function(){
+		drawChart1();
+	});
+	
+	$("#e2").change(function(){
+		drawChart1();
+	});
+	
+	
+	
+	
+	$("#ddate1").change(function(){
+		var dd=$("#ddate1").val(); 
+		
+		
+		DD=[];
+		DD.push(["Ημερ","Επισκέψεις","Επισκ.Κρουσματα"]);
+		for(var i=0;i<24;i++)
+			{
+				let ii=i;
+				$.getJSON("/diag2a?dd="+dd+"&h="+i,(res)=>{
+					
+					let d1=dd;
+					let h1=ii;
+						
+						let x=res[0];
+						$.getJSON("/diag2b?dd="+d1+"&h="+h1,(res2)=>{
+							
+							DD.push([d1,x.c,res2[0].c]);
+							drawChart2();
+						});
+						
+					
+					
+					
+				
+				});
+	
+		}
+	
+	
+	});
+	
+	$("#ee1").change(function(){
+		drawChart2();
+	});
+	
+	$("#ee2").change(function(){
+		drawChart2();
+	});
+	
+	
+	$.getJSON("/episkall",function(res){
+		res.forEach(p => $("#stat1").append("<p>Συνολικός αριθμός επισκέψεων:"+p.e+"</p>")); 
+	});
+	
+	
+	$.getJSON("/krousmataall",function(res){
+		res.forEach(p => $("#stat2").append("<p>Συνολικός αριθμός κρουσμάτων:"+p.e+"</p>")); 
+	});
+	
+	$.getJSON("/episkkrou",function(res){
+		res.forEach(p => $("#stat3").append("<p>Συνολικός αριθμός επισκέψεων από ενεργά κρούσματα:"+p.e+"</p>")); 
+	});
+	
+	$.getJSON("/simiacateg",function(res){
+		var h="<br><br><p>Κατάταξη των κατηγοριών σημείων ενδιαφέροντος με βάση το συνολικό πλήθος των επισκέψεων</p>";
+		h+="<table class='table'><tr><th>Τύπος</th><th>Πλήθος Επισκέψεων</th></tr>";
+		for (var i=0;i<res.length;i++)
+		{
+			h+="<tr><td>"+res[i].t+"</td><td>"+res[i].c+"</td></tr>";
+		}
+		h+="</table>";
+		$("#stat4").append(h);
+		
+	});
+	
+	$.getJSON("/krousmcateg",function(res){
+		var h="<br><br><p>Κατάταξη των κατηγοριών σημείων ενδιαφέροντος με βάση το συνολικό πλήθος κρουσμάτων</p>";
+		h+="<table class='table'><tr><th>Τύπος</th><th>Πλήθος Επισκέψεων</th></tr>";
+		for (var i=0;i<res.length;i++)
+		{
+			h+="<tr><td>"+res[i].t+"</td><td>"+res[i].c+"</td></tr>";
+		}
+		h+="</table>";
+		$("#stat5").append(h);
+		
+	});
+
+</script>
+
+
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+    //  google.charts.setOnLoadCallback(drawChart1);
+	//   google.charts.setOnLoadCallback(drawChart2);
+
+      function drawChart1() {
+	  
+	  var D2=[];
+	  console.log("rr");
+	  for(var i=0;i<D.length;i++)
+	  {
+	  
+		  
+			
+		 if($("#e1").is(":checked") && $("#e2").is(":checked") )
+			{
+				
+				D2.push([D[i][0], D[i][1], D[i][2]]);
+			}
+			else{
+			
+			
+				if($("#e1").is(":checked"))
+				{
+					D2.push([D[i][0], D[i][1]]);
+					
+				}
+			
+			 if($("#e2").is(":checked"))
+				{
+					
+					D2.push([D[i][0], D[i][2]]);
+				}
+			
+			}
+		
+	  }
+	  
+	  
+	  if(D2.length>1){
+        var data = google.visualization.arrayToDataTable(D2);
+
+        var options = {
+          title: 'Επισκέψεις-Κρούσματα ανά μέρα',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+		
+        var chart = new google.visualization.LineChart(document.getElementById('graph1'));
+
+        chart.draw(data, options);
+		}
+		else
+		{
+			
+			document.getElementById('graph1').innerHTML="";
+		}
+		
+      }
+	  
+	  
+	  
+	  
+	  function drawChart2() {
+	   
+		  var D2=[];
+		  D2.push(['Ώρα','Επισκέψεις','Κρούσματα']);
+		  for(var i=1;i<DD.length;i++)
+		  {
+		  
+			  
+				
+			 if($("#ee1").is(":checked") && $("#ee2").is(":checked") )
+				{
+					
+					D2.push([i-1, DD[i][1], DD[i][2]]);
+				}
+				else{
+				
+				
+					if($("#ee1").is(":checked"))
+					{
+						D2[0]=['Ώρα','Επισκέψεις'];
+						D2.push([i-1, DD[i][1]]);
+						
+					}
+				
+				 if($("#ee2").is(":checked"))
+					{
+						D2=['Ώρα','Κρούσματα'];
+						D2.push([i-1, DD[i][2]]);
+					}
+				
+				}
+			
+		  }
+		   
+		   if(D2.length>1){
+				console.log(D2);
+				var data = google.visualization.arrayToDataTable(D2);
+				
+				var options = {
+					title: 'Επισκέψεις-κρούσματα ανά ώρα',
+				  curveType: 'function',
+				  legend: { position: 'bottom' }
+				};
+
+				var chart = new google.visualization.LineChart(document.getElementById('graph2'));
+
+				chart.draw(data, options);
+			}
+			else{
+				document.getElementById('graph2').innerHTML="";
+			}
+      }
+	  
+	  
+	  
+    </script>
+
+
+</body>
+</html>
